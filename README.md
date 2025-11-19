@@ -49,6 +49,22 @@ curl -X POST http://localhost:3000/mcp/tool-call \
   }'
 ```
 
+## Docker Compose
+
+También puedes ejecutar el servidor con Docker Compose. Copia `.env.example` a `.env` y completa los valores:
+
+```bash
+cp .env.example .env
+```
+
+Inicia el servicio:
+
+```bash
+docker compose up --build
+```
+
+La API quedará disponible en `http://localhost:3000`. Detén el servicio con `docker compose down`.
+
 ## Herramientas expuestas
 - `list_spaces`: devuelve los espacios disponibles.
 - `list_pages`: requiere `spaceId`, lista las páginas del espacio.
