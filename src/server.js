@@ -8,7 +8,8 @@ const SERVER_INFO = { name: 'docmost-mcp', version: appVersion || 'dev' };
 const MCP_INSTRUCTIONS =
   'Herramientas MCP para leer y, si READ_ONLY es false, escribir en Docmost. ' +
   'Usa list_spaces para descubrir espacios, list_pages para ver páginas de un espacio ' +
-  'y get_page/search_pages para leer contenido.';
+  'y get_page/search_pages para leer contenido. ' +
+  'Cuando necesites la URL pública de una página, llama a get_page_url con el pageId obtenido.';
 
 const baseTools = [
   {
