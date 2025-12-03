@@ -1,6 +1,6 @@
 {
   "name": "docmost-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Servidor MCP HTTP para interactuar con Docmost sin dependencias externas.",
   "type": "commonjs",
   "main": "src/server.js",

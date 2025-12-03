@@ -1,8 +1,13 @@
 # Docmost MCP · Guía para agentes
 
 Versiones
-- Servidor MCP: **0.1.1** (`package.json` y descriptor MCP).
+- Servidor MCP: **0.1.2** (`package.json` y descriptor MCP).
 - Imagen publicada: `ghcr.io/makespacemadrid/docmost-mcp:latest` (tags por commit y release).
+
+Versionado automático (instrucciones para agentes)
+- Sigue SemVer: `MAJOR` (cambios incompatibles), `MINOR` (nuevas herramientas/comportamiento visible), `PATCH` (fixes, docs, limpieza).
+- Al introducir cambios, incrementa `package.json` y refleja el nuevo número en `README.md` y este `AGENTS.md`. Usa el mismo valor para el descriptor MCP (se toma de `package.json`).
+- Ejemplos: correcciones o refactors → `patch`; nuevas herramientas MCP o parámetros → `minor`; cambios incompatibles en endpoints → `major`.
 
 Endpoints MCP (JSON-RPC y descriptor)
 - Descriptor: `/.well-known/mcp` y `/mcp/.well-known/mcp`.

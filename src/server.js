@@ -272,11 +272,6 @@ async function handleJsonRpc(body) {
 
   switch (method) {
     case 'initialize': {
-      const clientInfo = params?.clientInfo;
-      if (clientInfo) {
-        console.log('[jsonrpc:init]', JSON.stringify(clientInfo));
-      }
-
       return {
         id,
         result: {
@@ -322,40 +317,32 @@ async function bootstrap() {
   client = new DocmostClient({ baseUrl: appConfig.baseUrl, apiToken: appConfig.apiToken });
 
   if (!appConfig.apiToken && appConfig.credentials) {
-    console.log('Obteniendo token de Docmost mediante autenticación...');
+    console.log('Autenticando contra Docmost para obtener authToken...');
     await client.login(appConfig.credentials.email, appConfig.credentials.password);
-    console.log('Token obtenido correctamente.');
+    console.log('authToken obtenido correctamente.');
   }
 
   const server = http.createServer(async (req, res) => {
     const { method, url } = req;
-    console.log(`[req] ${method} ${url}`);
 
     // CORS preflight
-  if (method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
-    });
-    return res.end();
-  }
+    if (method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+      });
+      return res.end();
+    }
 
-  const logHeaders = {
-    'user-agent': req.headers['user-agent'],
-    host: req.headers.host,
-    'content-type': req.headers['content-type'],
-    'x-forwarded-for': req.headers['x-forwarded-for'],
-    'x-forwarded-proto': req.headers['x-forwarded-proto'],
-  };
-  console.log('[headers]', JSON.stringify(logHeaders));
+    const isJsonRpcPath = url === '/' || url === '/mcp' || url === '/mc' || url === '/m';
+    const isWellKnown =
+      (url === '/.well-known/mcp' || url === '/mcp/.well-known/mcp') && method === 'GET';
 
-  const isWellKnown =
-    (url === '/.well-known/mcp' || url === '/mcp/.well-known/mcp') && method === 'GET';
+    if (method === 'GET' && url === '/') {
+      return sendJson(res, 200, { message: 'Docmost MCP en ejecución', tools });
+    }
 
-  if (url === '/' && method === 'GET') {
-    return sendJson(res, 200, { message: 'Docmost MCP en ejecución', tools });
-  }
     if (url === '/' && method === 'POST') {
       let body;
       try {
@@ -370,15 +357,15 @@ async function bootstrap() {
       }
     }
 
-  if (url === '/health' && method === 'GET') {
-    return sendJson(res, 200, { status: 'ok' });
-  }
+    if (url === '/health' && method === 'GET') {
+      return sendJson(res, 200, { status: 'ok' });
+    }
 
     if (url === '/mcp/tools' && method === 'GET') {
       return sendJson(res, 200, { tools });
     }
 
-  if (url === '/mcp/tool-call' && method === 'POST') {
+    if (url === '/mcp/tool-call' && method === 'POST') {
       try {
         const body = await parseJsonBody(req);
         const result = await handleToolCall(body);
@@ -389,41 +376,41 @@ async function bootstrap() {
       }
     }
 
-  if ((url === '/mcp' || url === '/mc' || url === '/m') && method === 'POST') {
-    let body;
-    try {
-      body = await parseJsonBody(req);
-      const rpc = await handleJsonRpc(body);
-      return sendJsonRpc(res, rpc.id, { result: rpc.result });
-    } catch (error) {
-      console.error('Error en JSON-RPC /mcp:', error);
-      const id = body?.id ?? null;
-      const code = typeof error.code === 'number' ? error.code : -32600;
-      return sendJsonRpcError(res, id, code, error.message);
+    if (isJsonRpcPath && method === 'POST') {
+      let body;
+      try {
+        body = await parseJsonBody(req);
+        const rpc = await handleJsonRpc(body);
+        return sendJsonRpc(res, rpc.id, { result: rpc.result });
+      } catch (error) {
+        console.error('Error en JSON-RPC:', error);
+        const id = body?.id ?? null;
+        const code = typeof error.code === 'number' ? error.code : -32600;
+        return sendJsonRpcError(res, id, code, error.message);
+      }
     }
-  }
 
-  if (isWellKnown) {
-    const proto = req.headers['x-forwarded-proto'] || 'http';
-    const host = req.headers.host || `0.0.0.0:${appConfig.port}`;
-    const base = `${proto}://${host}`;
+    if (isWellKnown) {
+      const proto = req.headers['x-forwarded-proto'] || 'http';
+      const host = req.headers.host || `0.0.0.0:${appConfig.port}`;
+      const base = `${proto}://${host}`;
 
-    return sendJson(res, 200, {
-      protocol: 'mcp-http-1',
-      mcp: { version: MCP_PROTOCOL_VERSION },
-      server: SERVER_INFO,
-      instructions: MCP_INSTRUCTIONS,
-      transport: {
-        type: 'http',
-        endpoint: `${base}/mcp`,
-      },
-      capabilities: { tools: { listChanged: true } },
-      endpoints: {
-        tools: `${base}/mcp/tools`,
-        call: `${base}/mcp/tool-call`,
-      },
-    });
-  }
+      return sendJson(res, 200, {
+        protocol: 'mcp-http-1',
+        mcp: { version: MCP_PROTOCOL_VERSION },
+        server: SERVER_INFO,
+        instructions: MCP_INSTRUCTIONS,
+        transport: {
+          type: 'http',
+          endpoint: `${base}/mcp`,
+        },
+        capabilities: { tools: { listChanged: true } },
+        endpoints: {
+          tools: `${base}/mcp/tools`,
+          call: `${base}/mcp/tool-call`,
+        },
+      });
+    }
 
     if (method !== 'GET' && method !== 'POST') {
       return methodNotAllowed(res);

@@ -2,7 +2,7 @@
 
 Servidor MCP HTTP ligero para interactuar con una instancia de Docmost a través de herramientas expuestas vía HTTP. No depende de paquetes externos, únicamente de Node.js (v18+).
 
-Versión actual: **0.1.1** (reflejada en `package.json` y servida en el descriptor MCP).
+Versión actual: **0.1.2** (reflejada en `package.json` y servida en el descriptor MCP).
 
 ## Requisitos
 - Node.js 18 o superior (para contar con `fetch` nativo)
@@ -117,7 +117,7 @@ La API quedará disponible en `http://localhost:3000`. Detén el servicio con `d
 
 ## Integración con agentes MCP y notas
 - URL base sugerida: `http(s)://<host>:3000` (ejemplo en prod: `https://docmost-mcp.mksmad.org`).
-- Descriptor MCP disponible en `/.well-known/mcp` y `/mcp/.well-known/mcp`; incluye nombre y versión (`0.1.1`).
+- Descriptor MCP disponible en `/.well-known/mcp` y `/mcp/.well-known/mcp`; incluye nombre y versión (`0.1.2`).
 - Algunos clientes POSTean al root (`/`); también se responde JSON-RPC `initialize/list_tools/call_tool` en `/`, `/mcp`, `/mc`, `/m`.
 - Si `READ_ONLY=true`, las herramientas de escritura (`create_page`, `update_page`) no se publican y las llamadas a ellas serán rechazadas.
 - Las rutas hacia Docmost asumen los endpoints REST convencionales (p. ej. `/api/spaces`, `/api/pages`). Ajusta `src/docmostClient.js` si tu instancia difiere.
