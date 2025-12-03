@@ -26,7 +26,7 @@ export READ_ONLY=false
 
 # Opción 2: login automático por email/contraseña (obtiene authToken)
 export DOCMOST_BASE_URL="https://demo.docmost.com"
-export DOCMOST_EMAIL="bot@makespacemadrid.org"
+export DOCMOST_EMAIL="robot@example.com"
 export DOCMOST_PASSWORD="tu_clave"
 export PORT=3000
 export READ_ONLY=false
