@@ -1,7 +1,7 @@
 services:
   docmost-mcp:
     build: .
-    image: docmost-mcp:latest
+    image: ghcr.io/makespacemadrid/docmost-mcp:latest
     environment:
       DOCMOST_BASE_URL: ${DOCMOST_BASE_URL:?Establece DOCMOST_BASE_URL}
       DOCMOST_API_TOKEN: ${DOCMOST_API_TOKEN:-}
